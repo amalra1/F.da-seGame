@@ -43,8 +43,8 @@ int main()
 
     unsigned char *cartas_valor, *cartas_escolhidas, 
     vidas[4], palpites_rodada[4], jogadas_rodada[4], vitorias_rodada[4], 
-    destino_msg, palpite, jogada, vencedor_rodada,
-    todos_vivos = 1, flag_crescente = 0, num_cartas = 10, bastao = 0x00, id_jogador = 3;
+    destino_msg, palpite, jogada, vencedor_rodada, ultima_mensagem,
+    todos_vivos = 1, todos_vivos_flag = 1, flag_crescente = 0, num_cartas = 10, bastao = 0x00, id_jogador = 3;
     
     carta_t *cartas_representacao, carta_adversario, maior, atual;
 
@@ -66,12 +66,12 @@ int main()
             // Caso esteja no limite inferior ou superior do número de cartas
             if (num_cartas == 0)
             {
-                num_cartas++;
+                num_cartas += 2;
                 flag_crescente = 1;
             }
             else if (num_cartas == 11)
             {
-                num_cartas--;
+                num_cartas -= 2;
                 flag_crescente = 0;
             }
 
@@ -341,26 +341,29 @@ int main()
 
             // Passa o bastão
 
-            destino_msg = (id_jogador + 1) % 4;
-
-            dados[0] = bastao;
-
-            if (flag_crescente)
+            if (todos_vivos)
             {
-                dados[1] = num_cartas++;
+                destino_msg = (id_jogador + 1) % 4;
+
+                dados[0] = bastao;
+
+                if (flag_crescente)
+                {
+                    dados[1] = num_cartas + 1;
+                }
+                else
+                {
+                    dados[1] = num_cartas - 1;
+                }
+
+                frame = monta_mensagem(destino_msg, id_jogador, 0x02, 0X07, dados, 1);
+
+                if (!envia_mensagem(sockfd, next_machine_addr, addr_len, &frame, &frame_resp))
+                    return EXIT_FAILURE;
+
+                bastao = 0x00;
+                num_cartas = 0;
             }
-            else
-            {
-                dados[1] = num_cartas--;
-            }
-
-            frame = monta_mensagem(destino_msg, id_jogador, 0x02, 0X07, dados, 1);
-
-            if (!envia_mensagem(sockfd, next_machine_addr, addr_len, &frame, &frame_resp))
-                return EXIT_FAILURE;
-
-            bastao = 0x00;
-            num_cartas = 0;
 
             free(cartas_valor);
             free(cartas_escolhidas);
@@ -369,11 +372,21 @@ int main()
         // Jogador normal
         else
         {
+            ultima_mensagem = 0;
+
             if (recvfrom(sockfd, &frame, sizeof(frame), 0, NULL, NULL) < 0)
             {
                 perror("Erro no recebimento:");
                 return EXIT_FAILURE;
             }
+
+            if ((frame.origem != 0 && ((int)frame.origem - (int)frame.destino == 1)) || (frame.origem == 0 && frame.destino == 4))
+                ultima_mensagem = 1;
+
+            // Quando um jogador perde a partida os jogadores seguintes ao carteador percebem esse fato.
+            // Contudo, eles tem que continuar na rede até que o último jogador saiba do fim de jogo.
+            if (ultima_mensagem && !todos_vivos_flag)
+                todos_vivos = 0;
 
             if (frame.destino == id_jogador)
             {
@@ -502,7 +515,11 @@ int main()
                             if ((vidas[i] = frame.dados[i]) == 0)
                             {
                                 printf("O jogador %d perdeu o jogo!\n", (int)(i+1));
-                                todos_vivos = 0;
+
+                                if (ultima_mensagem)
+                                    todos_vivos = 0;
+                                
+                                todos_vivos_flag = 0;
                             }
                             else
                             {
