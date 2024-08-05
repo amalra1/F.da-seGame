@@ -203,7 +203,7 @@ int main()
                     printf("\n");
                 }
 
-                printf("\nEscolha uma carta para jogar: ");
+                printf("Escolha uma carta para jogar: ");
                 scanf("%hhu", &jogada);
                 
                 while (jogada < 1 || jogada > num_cartas || cartas_escolhidas[cartas_valor[jogada-1]] == 2)
@@ -211,7 +211,6 @@ int main()
                     printf("Por favor, escolha uma carta válida para jogar: ");
                     scanf("%hhu", &jogada);
                 }
-                printf("\n");
 
                 cartas_escolhidas[cartas_valor[jogada-1]] = 2;
 
@@ -263,7 +262,7 @@ int main()
                         return EXIT_FAILURE;
                 }
 
-                printf("\nJogador %d ganhou a rodada!\n\n", (int)(vencedor_rodada+1));
+                printf("\nJogador %d ganhou a rodada!\n", (int)(vencedor_rodada+1));
 
                 printf("\n-------------------------------------\n\n");
 
@@ -452,7 +451,7 @@ int main()
                     // O jogador escolhe uma carta para jogar
                     else if (eh_jogadas(&frame))
                     {
-                        printf("\nEscolha uma carta para jogar: ");
+                        printf("Escolha uma carta para jogar: ");
                         scanf("%hhu", &jogada);
 
                         while (jogada < 1 || jogada > num_cartas || cartas_escolhidas[cartas_valor[jogada-1]])
@@ -460,7 +459,6 @@ int main()
                             printf("Por favor, escolha uma carta válida para jogar: ");
                             scanf("%hhu", &jogada);
                         }
-                        printf("\n");
 
                         frame.dados[0] = cartas_valor[jogada-1];
                         frame.crc8 = calcula_crc(&frame);
@@ -478,8 +476,8 @@ int main()
                             carta_adversario.naipe = frame.dados[1] / 10;
                             printf("Jogador %d jogou: ", (int)(frame.dados[0]+1));
                             print_carta(carta_adversario);
+                            printf("\n");
                         }
-                        printf("\n");
                     }
 
                     // Divulgação de quem ganhou o turno
