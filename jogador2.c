@@ -379,7 +379,7 @@ int main()
                 return EXIT_FAILURE;
             }
 
-            if ((frame.origem != 0 && ((int)frame.origem - (int)frame.destino == 1)) || (frame.origem == 0 && frame.destino == 4))
+            if ((frame.origem != 0 && ((int)frame.origem - (int)frame.destino == 1)) || (frame.origem == 0 && frame.destino == 3))
                 ultima_mensagem = 1;
 
             // Quando um jogador perde a partida os jogadores seguintes ao carteador percebem esse fato.
