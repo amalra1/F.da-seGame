@@ -1,3 +1,2 @@
-# f-da-se_rede_anel
-Implementação do jogo de baralho "F*da-se", utilizando uma Rede em anel com controle de acesso ao meio sendo Passagem de Bastão.  
-Pode ser jogado com no máximo 4 jogadores.
+# F*DA-SE
+Implementing the cards game named 'F*oda-se' in C, exercising how a Ring-Shaped Local network works. Up to 4 players on the same or different computers (If connected by the same LAN network).
